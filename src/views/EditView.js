@@ -4,6 +4,7 @@ import { displaySquareNumber } from '../board.js'
 import { icon } from '../icons.js'
 import { escapeHtml } from '../utils.js'
 import { applyTaskPack, createTaskPack, TASK_PACK_FORMAT, TASK_PACK_VERSION, TASK_TEXT_MAX_LENGTH, TASK_DURATION_MAX } from '../taskPack.js'
+import { playSound } from '../sound.js'
 
 const AUTO_TEXT = /^(前进|后退)\s*\d+\s*格$|^(暂停一次|重摇一次)$/
 
@@ -231,6 +232,7 @@ export class EditView {
       value.textContent = String(sq.duration)
       value.dataset.value = String(sq.duration)
     }
+    playSound('ui-select', this.store.state.soundEnabled)
   }
 
   setSquareType(id, type) {
@@ -251,11 +253,13 @@ export class EditView {
     const scrollTop = this.listEl.scrollTop
     this.renderList()
     this.listEl.scrollTop = scrollTop
+    playSound('ui-select', this.store.state.soundEnabled)
   }
 
   openTypePicker(id) {
     const sq = this.draft.find(s => s.id === id)
     if (!sq) return
+    playSound('ui-open', this.store.state.soundEnabled)
     const options = EDITABLE_TYPES.map(type => {
       const item = SQUARE_TYPES[type]
       const selected = sq.type === type ? ' is-selected' : ''
@@ -273,12 +277,13 @@ export class EditView {
     this.typePickerRoot.querySelectorAll('[data-type]').forEach(btn => {
       btn.addEventListener('click', () => {
         this.setSquareType(id, btn.dataset.type)
-        this.closeTypePicker()
+        this.closeTypePicker(false)
       })
     })
   }
 
-  closeTypePicker() {
+  closeTypePicker(withSound = true) {
+    if (withSound && this.typePickerRoot.innerHTML) playSound('ui-close', this.store.state.soundEnabled)
     this.typePickerRoot.innerHTML = ''
   }
 
@@ -294,14 +299,17 @@ export class EditView {
     if (sq.type === 'backward') sq.text = `后退 ${sq.value} 格`
     const textInput = item.querySelector('[data-field="text"]')
     if (textInput) textInput.value = sq.text
+    playSound('ui-select', this.store.state.soundEnabled)
   }
 
   handleAction(action) {
     if (action === 'back') {
+      playSound('ui-close', this.store.state.soundEnabled)
       this.callbacks.onBack()
     } else if (action === 'save') {
       this.syncDraftFromForm()
       this.store.saveSquares(this.draft)
+      playSound('success', this.store.state.soundEnabled)
       this.callbacks.onBack()
     } else if (action === 'import-pack') {
       this.syncDraftFromForm()
@@ -312,6 +320,7 @@ export class EditView {
     } else if (action === 'reset') {
       this.draft = createDefaultSquares().map(sq => ({ ...sq }))
       this.renderList()
+      playSound('ui-select', this.store.state.soundEnabled)
     }
   }
 
@@ -323,12 +332,14 @@ export class EditView {
     status.textContent = message
   }
 
-  closePackModal() {
+  closePackModal(withSound = true) {
+    if (withSound && this.modalRoot.innerHTML) playSound('ui-close', this.store.state.soundEnabled)
     this.modalRoot.innerHTML = ''
   }
 
   openExportPack() {
     const content = JSON.stringify(createTaskPack(this.draft), null, 2)
+    playSound('ui-open', this.store.state.soundEnabled)
     this.modalRoot.innerHTML = `
       <div class="backdrop-scrim"></div>
       <div class="modal-wrapper" role="dialog" aria-modal="true" aria-label="导出任务包">
@@ -354,16 +365,19 @@ export class EditView {
       if (!navigator.clipboard?.writeText) throw new Error('clipboard unavailable')
       await navigator.clipboard.writeText(content)
       this.updatePackStatus('任务包已复制，可直接发送给对方。')
+      playSound('success', this.store.state.soundEnabled)
     } catch (error) {
       const field = this.modalRoot.querySelector('[data-role="export-content"]')
       field?.focus()
       field?.select()
       document.execCommand('copy')
       this.updatePackStatus('任务包已选中，请复制后发送给对方。', 'info')
+      playSound('ui-select', this.store.state.soundEnabled)
     }
   }
 
   openImportPack() {
+    playSound('ui-open', this.store.state.soundEnabled)
     this.modalRoot.innerHTML = `
       <div class="backdrop-scrim"></div>
       <div class="modal-wrapper" role="dialog" aria-modal="true" aria-label="导入任务包">
@@ -391,9 +405,10 @@ export class EditView {
     const field = this.modalRoot.querySelector('[data-role="import-content"]')
     try {
       this.draft = applyTaskPack(this.draft, JSON.parse(field?.value || ''))
-      this.closePackModal()
+      this.closePackModal(false)
       this.renderList()
       this.updatePackStatus('任务包已导入到草稿，点击“保存修改”后生效。')
+      playSound('success', this.store.state.soundEnabled)
     } catch (error) {
       const message = error instanceof Error ? error.message : '导入失败，请检查任务包内容。'
       const errorEl = this.modalRoot.querySelector('[data-role="import-error"]')
@@ -401,6 +416,7 @@ export class EditView {
         errorEl.hidden = false
         errorEl.textContent = message
       }
+      playSound('error', this.store.state.soundEnabled)
     }
   }
 }

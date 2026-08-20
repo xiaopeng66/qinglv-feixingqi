@@ -34,20 +34,17 @@ npm run build
 
 ## Android 构建
 
-项目使用 Capacitor 6 和 Android Gradle Wrapper。先构建网页资源，再同步到 Android 工程并构建 APK：
+项目使用 Capacitor 6 和 Android Gradle Wrapper。所有 Android 命令都从项目根目录执行，构建脚本会自动完成网页构建、资源同步、Android 构建，并将 APK 复制到 `release/`：
 
 ```powershell
-npm run build
-npx cap sync android
-cd android
-.\gradlew.bat assembleDebug
+npm run android:build
 ```
 
-生成的调试 APK 位于 `android/app/build/outputs/apk/debug/`。正式分发前，请在 Android Studio 或 Gradle 中配置自己的签名密钥，并构建已签名的 release APK 或 AAB。
+仅同步 Android 网页资源时使用 `npm run android:sync`；发布前可用 `npm run release:prepare` 依次完成测试与 APK 构建。生成的调试 APK 位于 `release/qinglv-feixingqi-v<版本号>-debug.apk`，原始 Gradle 输出仍位于 `android/app/build/outputs/apk/debug/`。正式分发前，请在 Android Studio 或 Gradle 中配置自己的签名密钥，并构建已签名的 release APK 或 AAB。
 
 ## 安装发行版
 
-在 GitHub 的 Releases 页面下载对应版本的 `qinglv-feixingqi-v1.0.2-debug.apk`，传到 Android 设备后打开安装。该文件是调试签名包，Android 可能要求确认允许来自该来源的安装；请仅从本仓库的发行版页面下载。
+在 GitHub 的 Releases 页面下载对应版本的 `qinglv-feixingqi-v1.0.3-debug.apk`，传到 Android 设备后打开安装。该文件是调试签名包，Android 可能要求确认允许来自该来源的安装；请仅从本仓库的发行版页面下载。
 
 ## 项目结构
 
@@ -60,6 +57,8 @@ src/store.js          游戏状态和规则
 src/taskPack.js       任务包导入、导出
 android/              Capacitor Android 工程
 smoke-test.mjs        核心逻辑冒烟测试
+scripts/android.mjs   根目录 Android 构建与资源同步入口
+release/              本地构建产物，未纳入 Git
 ```
 
 ## 架构与新增游戏
@@ -72,4 +71,4 @@ smoke-test.mjs        核心逻辑冒烟测试
 
 ## 版本
 
-当前版本为 `v1.0.2`。具体更新内容见 [CHANGELOG.md](CHANGELOG.md)。
+当前版本为 `v1.0.3`。具体更新内容见 [CHANGELOG.md](CHANGELOG.md)。

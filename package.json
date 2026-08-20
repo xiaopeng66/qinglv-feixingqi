@@ -1,6 +1,6 @@
 {
   "name": "qinglv-feixingqi",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "情侣飞行棋 — 双人互动棋盘游戏 App",
   "private": true,
   "type": "module",
@@ -8,7 +8,11 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node --test tests/*.test.mjs && node smoke-test.mjs"
+    "test": "node --test tests/*.test.mjs && node smoke-test.mjs",
+    "verify": "npm test && npm run build",
+    "android:sync": "node scripts/android.mjs --sync",
+    "android:build": "node scripts/android.mjs",
+    "release:prepare": "npm test && npm run android:build"
   },
   "dependencies": {
     "@capacitor/android": "^6.2.1",

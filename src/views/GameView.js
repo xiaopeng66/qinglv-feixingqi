@@ -26,6 +26,7 @@ export class GameView {
     this.taskDeadline = 0
     this.taskTimerTimedOut = false
     this.taskTimerStarted = false
+    this.lastCountdownSecond = null
     this.winModalShown = false
     this.unsub = store.subscribe(() => this.update())
     this.render()
@@ -348,6 +349,7 @@ export class GameView {
       this.hideMenu()
       return
     }
+    playSound('ui-open', this.store.state.soundEnabled)
     this.menuRoot.innerHTML = `
       <div class="menu-backdrop" data-action="menu-close"></div>
       <div class="menu-panel">
@@ -361,12 +363,14 @@ export class GameView {
   }
 
   hideMenu() {
+    if (this.menuRoot.innerHTML) playSound('ui-close', this.store.state.soundEnabled)
     this.menuRoot.innerHTML = ''
   }
 
   // ===== 确认重新开始 =====
   confirmReset() {
     this.modalLocked = true
+    playSound('ui-open', this.store.state.soundEnabled)
     this.modalRoot.innerHTML = `
       <div class="backdrop-scrim"></div>
       <div class="modal-wrapper">
@@ -385,10 +389,12 @@ export class GameView {
     this.modalRoot.querySelector('[data-action="reset-yes"]').addEventListener('click', () => {
       this.cancelGameAnimations()
       this.modalLocked = false
+      playSound('confirm', this.store.state.soundEnabled)
       this.store.resetGame()
     })
     this.modalRoot.querySelector('[data-action="reset-no"]').addEventListener('click', () => {
       this.modalLocked = false
+      playSound('ui-close', this.store.state.soundEnabled)
       this.update()
     })
   }
@@ -406,6 +412,7 @@ export class GameView {
     this.currentTaskDuration = Number(eff.duration) || 0
     this.taskTimerStarted = false
     const s = this.store.state
+    playSound('task-open', s.soundEnabled)
     const current = s.players[s.current]
     let ribbon = '任务'
     let label = `${current.name}的任务`
@@ -462,6 +469,7 @@ export class GameView {
     this.taskTimerStarted = true
     this.taskDeadline = Date.now() + duration * 1000
     this.taskTimerTimedOut = false
+    this.lastCountdownSecond = Number(duration)
     const startButton = this.modalRoot.querySelector('[data-action="countdown-start"]')
     if (startButton) {
       startButton.disabled = true
@@ -469,8 +477,10 @@ export class GameView {
     }
     const countdownLabel = this.modalRoot.querySelector('[data-role="task-countdown-label"]')
     if (countdownLabel) countdownLabel.textContent = '正在倒计时'
+    this.modalRoot.querySelector('[data-role="task-countdown"]')?.classList.add('is-running')
     const confirmButtons = this.modalRoot.querySelectorAll('[data-action="confirm"]')
     confirmButtons.forEach(button => { button.disabled = true })
+    playSound('countdown-start', this.store.state.soundEnabled)
     this.updateTaskCountdown()
     this.taskTimerInterval = setInterval(() => this.updateTaskCountdown(), 250)
   }
@@ -489,8 +499,15 @@ export class GameView {
     const value = panel.querySelector('[data-role="task-time-value"]')
     if (value) value.textContent = String(seconds)
     if (progress) progress.style.width = `${Math.max(0, Math.min(100, remaining / ((Number(this.currentTaskDuration) || 1) * 1000) * 100))}%`
+    if (seconds > 0 && seconds !== this.lastCountdownSecond) {
+      const isUrgent = seconds <= 5
+      panel.classList.toggle('is-urgent', isUrgent)
+      playSound(isUrgent ? 'countdown-urgent' : 'countdown-tick', this.store.state.soundEnabled)
+      this.lastCountdownSecond = seconds
+    }
     if (remaining <= 0 && !this.taskTimerTimedOut) {
       this.taskTimerTimedOut = true
+      panel.classList.remove('is-running', 'is-urgent')
       panel.classList.add('is-timeout')
       const labels = panel.querySelectorAll('.task-countdown-line span')
       if (labels[0]) labels[0].textContent = '时间到，可以完成'
@@ -500,7 +517,7 @@ export class GameView {
       const startButton = panel.querySelector('[data-action="countdown-start"]')
       if (startButton) { startButton.disabled = true; startButton.textContent = '倒计时已结束' }
       this.modalRoot.querySelectorAll('[data-action="confirm"]').forEach(button => { button.disabled = false })
-      playSound('timeout', this.store.state.soundEnabled)
+      playSound('countdown-finish', this.store.state.soundEnabled)
       clearInterval(this.taskTimerInterval)
       this.taskTimerInterval = null
     }
@@ -512,6 +529,7 @@ export class GameView {
     this.taskDeadline = 0
     this.taskTimerTimedOut = false
     this.taskTimerStarted = false
+    this.lastCountdownSecond = null
     if (resetKey) this.taskModalKey = null
   }
 
@@ -578,6 +596,7 @@ export class GameView {
     clearTimeout(this.modalCloseTimer)
     const s = this.store.state
     this.modalLocked = true
+    playSound('ui-open', s.soundEnabled)
     const rows = s.players.map(p => `
       <div class="pset-row">
         <div class="pset-avatar avatar-piece avatar-piece--${p.id === 'girl' ? 'girl' : 'boy'}" style="background:${p.color}" aria-hidden="true">${this.tokenFace(p)}</div>
@@ -593,7 +612,7 @@ export class GameView {
           <div class="modal-body">
             <p class="m-text" style="margin-bottom:14px;">昵称会显示在回合和任务提示中</p>
             <div class="pset-list">${rows}</div>
-            <label class="settings-toggle"><span>任务与骰子音效</span><input type="checkbox" data-field="sound-enabled" ${s.soundEnabled ? 'checked' : ''}></label>
+            <label class="settings-toggle"><span>交互与倒计时音效</span><input type="checkbox" data-field="sound-enabled" ${s.soundEnabled ? 'checked' : ''}></label>
           </div>
           <div class="modal-actions">
             <button class="m-btn secondary" data-action="settings-cancel">取消</button>
@@ -612,9 +631,11 @@ export class GameView {
       this.modalLocked = false
       this.store.savePlayers(players)
       this.store.setSoundEnabled(soundEnabled)
+      playSound('success', soundEnabled)
     })
     this.modalRoot.querySelector('[data-action="settings-cancel"]').addEventListener('click', () => {
       this.modalLocked = false
+      playSound('ui-close', s.soundEnabled)
       this.hideModal()
     })
   }

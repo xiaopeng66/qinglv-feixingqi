@@ -1223,8 +1223,13 @@ button, input, textarea, select { font-family: var(--font-sans); }
 .task-countdown-line strong { margin-left: auto; font-size: 18px; line-height: 1; }
 .task-countdown-track { height: 5px; margin-top: 7px; overflow: hidden; border-radius: 999px; background: rgba(125, 36, 59, 0.14); }
 .task-countdown-track span { display: block; height: 100%; width: 100%; background: #B95264; transform-origin: left center; transition: width 0.25s linear; }
+.task-countdown.is-running .task-countdown-track span { box-shadow: 0 0 8px rgba(185, 82, 100, 0.38); }
+.task-countdown.is-urgent { color: #A33C4E; background: rgba(224, 120, 131, 0.15); }
+.task-countdown.is-urgent .task-countdown-line strong { animation: countdown-pulse 700ms ease-in-out infinite alternate; }
+.task-countdown.is-urgent .task-countdown-track span { background: #A33C4E; box-shadow: 0 0 10px rgba(163, 60, 78, 0.52); }
 .task-countdown.is-timeout { color: #A33C4E; background: rgba(224, 120, 131, 0.15); }
 .task-countdown.is-timeout .task-countdown-track span { background: #A33C4E; }
+@keyframes countdown-pulse { from { transform: scale(1); } to { transform: scale(1.08); } }
 .duration-field { display: flex; align-items: center; gap: 7px; min-height: 34px; color: #C6A8AD; font-size: var(--font-size-xs); }
 .duration-field span { white-space: nowrap; }
 .duration-stepper { display: inline-flex; align-items: center; min-height: 42px; border: 1px solid rgba(226, 178, 142, 0.28); border-radius: 8px; overflow: hidden; background: #351525; }
