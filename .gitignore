@@ -1,0 +1,25 @@
+node_modules/
+dist/
+
+# Capacitor / Android generated files
+android/.gradle/
+android/build/
+android/app/build/
+android/capacitor-cordova-android-plugins/build/
+android/local.properties
+android/.idea/
+android/app/capacitor.build.gradle
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+android/app/src/main/assets/public/
+*.iml
+
+# Release artifacts are published through GitHub Releases, not Git.
+*.apk
+*.aab
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

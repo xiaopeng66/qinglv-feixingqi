@@ -1,0 +1,12 @@
+{
+  "appId": "com.qinglv.feixingqi",
+  "appName": "情侣飞行棋",
+  "webDir": "dist",
+  "backgroundColor": "#171028",
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#171028",
+    "captureInput": true,
+    "webContentsDebuggingEnabled": true
+  }
+}
