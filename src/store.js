@@ -1,5 +1,5 @@
 // 游戏状态与核心逻辑（发布-订阅模式）
-import { createDefaultSquares, STORAGE_KEYS } from './data.js'
+import { createDefaultSquares, LEGACY_STORAGE_KEYS, STORAGE_KEYS } from './data.js'
 
 const listeners = new Set()
 const LAST_POSITION = 47
@@ -31,11 +31,16 @@ function initialState() {
   }
 }
 
+function readStoredValue(primaryKey, legacyKey) {
+  const primaryValue = localStorage.getItem(primaryKey)
+  return primaryValue === null ? localStorage.getItem(legacyKey) : primaryValue
+}
+
 function loadState() {
   try {
-    const squares = JSON.parse(localStorage.getItem(STORAGE_KEYS.squares))
-    const players = JSON.parse(localStorage.getItem(STORAGE_KEYS.players))
-    const game = JSON.parse(localStorage.getItem(STORAGE_KEYS.game))
+    const squares = JSON.parse(readStoredValue(STORAGE_KEYS.squares, LEGACY_STORAGE_KEYS.squares))
+    const players = JSON.parse(readStoredValue(STORAGE_KEYS.players, LEGACY_STORAGE_KEYS.players))
+    const game = JSON.parse(readStoredValue(STORAGE_KEYS.game, LEGACY_STORAGE_KEYS.game))
     if (Array.isArray(squares) && squares.length === 48 && Array.isArray(players) && players.length === 2) {
       const usesTaskPositions = game?.positionScheme === POSITION_SCHEME
       const restoredPlayers = players.map(player => {

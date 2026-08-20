@@ -107,8 +107,18 @@ export function createDefaultSquares() {
   return squares
 }
 
-// 本地存储键
+export const FLIGHT_CHESS_GAME_ID = 'flight-chess'
+const STORAGE_PREFIX = `qinglv.games.${FLIGHT_CHESS_GAME_ID}.v1`
+
+// 游戏 ID 作为命名空间，防止后续游戏覆盖飞行棋存档。
 export const STORAGE_KEYS = {
+  squares: `${STORAGE_PREFIX}.squares`,
+  players: `${STORAGE_PREFIX}.players`,
+  game: `${STORAGE_PREFIX}.game`
+}
+
+// v1.0.0 及以前版本使用的键；只用于读取和无损迁移。
+export const LEGACY_STORAGE_KEYS = {
   squares: 'qlfxq_squares_v1',
   players: 'qlfxq_players_v1',
   game: 'qlfxq_game_v1'

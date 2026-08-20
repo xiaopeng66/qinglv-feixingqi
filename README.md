@@ -25,8 +25,8 @@ npm run dev
 ## 验证与构建
 
 ```powershell
-# 核心游戏逻辑冒烟测试
-node smoke-test.mjs
+# 注册表测试与核心游戏逻辑冒烟测试
+npm test
 
 # 构建网页产物到 dist/
 npm run build
@@ -53,12 +53,18 @@ cd android
 
 ```text
 src/                 网页游戏源码
+src/app/             应用入口、启动页、游戏注册与挂载宿主
+src/games/           各游戏的独立会话模块
 src/views/           游戏与任务编辑界面
 src/store.js          游戏状态和规则
 src/taskPack.js       任务包导入、导出
 android/              Capacitor Android 工程
 smoke-test.mjs        核心逻辑冒烟测试
 ```
+
+## 架构与新增游戏
+
+应用使用 Vite、原生 ES Modules 与 Capacitor 6。飞行棋已通过游戏注册表、独立会话和独立存档命名空间与应用入口隔离；以后新增游戏不需要修改飞行棋规则或视图。具体约定见 [docs/ADDING_GAMES.md](docs/ADDING_GAMES.md)。
 
 ## 数据与隐私
 
