@@ -431,7 +431,6 @@ export class GameView {
       <div class="modal-wrapper" role="dialog" aria-modal="true">
         <div class="task-modal task-modal--${eff.type}">
           <div class="task-ribbon"><span>${ribbon}</span></div>
-          <button class="close-btn" data-action="confirm" aria-label="关闭">${icon('x', 20)}</button>
           <div class="task-player">
             <div class="tp-avatar avatar-piece avatar-piece--${current.id === 'girl' ? 'girl' : 'boy'}" style="background:${current.color}">${this.tokenFace(current)}</div>
             <span class="tp-label">${escapeHtml(label)}</span>

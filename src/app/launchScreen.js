@@ -1,6 +1,10 @@
 export function showLaunchScreen() {
+  // Render the opaque cover before the game view so native-to-web startup
+  // never exposes an intermediate frame of the board.
   const screen = document.createElement('div')
-  screen.className = 'launch-screen'
+  // The native Android splash hands off to this element. Make its first
+  // painted frame complete so the handoff cannot reveal a blank flash.
+  screen.className = 'launch-screen launch-screen--visible'
   screen.setAttribute('role', 'status')
   screen.setAttribute('aria-label', '情侣飞行棋正在启动')
   screen.innerHTML = `
@@ -21,8 +25,6 @@ export function showLaunchScreen() {
     </div>
   `
   document.body.append(screen)
-  requestAnimationFrame(() => screen.classList.add('launch-screen--visible'))
-
   window.setTimeout(() => {
     screen.classList.add('launch-screen--leaving')
     window.setTimeout(() => screen.remove(), 260)

@@ -47,7 +47,7 @@ cd android
 
 ## 安装发行版
 
-在 GitHub 的 Releases 页面下载对应版本的 `qinglv-feixingqi-v1.0.1-debug.apk`，传到 Android 设备后打开安装。该文件是调试签名包，Android 可能要求确认允许来自该来源的安装；请仅从本仓库的发行版页面下载。
+在 GitHub 的 Releases 页面下载对应版本的 `qinglv-feixingqi-v1.0.2-debug.apk`，传到 Android 设备后打开安装。该文件是调试签名包，Android 可能要求确认允许来自该来源的安装；请仅从本仓库的发行版页面下载。
 
 ## 项目结构
 
@@ -72,4 +72,4 @@ smoke-test.mjs        核心逻辑冒烟测试
 
 ## 版本
 
-当前版本为 `v1.0.1`。具体更新内容见 [CHANGELOG.md](CHANGELOG.md)。
+当前版本为 `v1.0.2`。具体更新内容见 [CHANGELOG.md](CHANGELOG.md)。
