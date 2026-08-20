@@ -72,6 +72,17 @@ store.finishMove()
 assert(!store.state.moving, 'finishMove 结束移动')
 assert(store.state.players[0].position === 3, '起点掷 3 点停在可见第 3 格')
 
+// 重开后，旧动画回调和非法骰子值都不能污染新棋局状态。
+store.resetGame()
+store.commitRoll(6)
+assert(store.state.phase === 'idle' && store.state.players[0].position === 0, '未处于掷骰状态时忽略过期的骰子回调')
+store.rollDice()
+store.commitRoll(7)
+assert(store.state.rolling === true && store.state.phase === 'rolling', '非法骰子值不会改变滚动状态')
+store.resetGame()
+store.finishMove()
+assert(store.state.phase === 'idle' && store.state.players[0].position === 0, '重开后忽略过期的移动完成回调')
+
 // 旧棋盘只有 text 时仍可正常触发任务，且男女任务按当前玩家分别读取。
 store.resetGame()
 const taskSquare = store.state.squares.find(square => square.type === 'normal')
@@ -126,6 +137,33 @@ assert(Object.keys(store.state.completedTasks).length === 0, '重开后清空任
 store.setSoundEnabled(false)
 assert(store.state.soundEnabled === false, '音效开关可关闭')
 store.setSoundEnabled(true)
+
+// 重摇会保留当前玩家；暂停会在下次轮到该玩家时跳过并自动恢复。
+store.resetGame()
+const rerollSquare = store.state.squares.find(square => square.type === 'reroll')
+store.state.players[0].position = rerollSquare.id - 2
+store.rollDice()
+store.commitRoll(1)
+store.finishMove()
+store.confirmEffect()
+assert(store.state.current === 0 && store.state.phase === 'idle' && !store.state.rerollPending, '重摇格让当前玩家再次掷骰')
+
+store.resetGame()
+const pauseSquare = store.state.squares.find(square => square.type === 'pause')
+const normalSquareAfterPause = store.state.squares.find(square => square.type === 'normal')
+store.state.players[0].position = pauseSquare.id - 2
+store.rollDice()
+store.commitRoll(1)
+store.finishMove()
+store.confirmEffect()
+assert(store.state.players[0].paused && store.state.current === 1, '暂停格标记当前玩家并切换到对方回合')
+store.state.players[1].position = normalSquareAfterPause.id - 2
+store.rollDice()
+store.commitRoll(1)
+store.finishMove()
+store.confirmEffect()
+assert(!store.state.players[0].paused && store.state.current === 1 && store.state.notice?.includes('跳过本回合'), '暂停玩家会被跳过并在随后恢复')
+store.resetGame()
 
 // 前进、后退提示确认后才启动额外移动，并根据新落点继续生成任务。
 store.resetGame()

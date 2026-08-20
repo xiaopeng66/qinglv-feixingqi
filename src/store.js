@@ -149,6 +149,7 @@ export const store = {
 
   // 骰子动画结束后由视图调用，传入最终点数
   commitRoll(value) {
+    if (!state.rolling || !Number.isInteger(value) || value < 1 || value > 6) return
     const p = currentPlayer()
     const start = p.position
     const { finalPos, path, effects } = computeMove(start, value)
@@ -164,6 +165,7 @@ export const store = {
 
   // 棋子移动动画结束后由视图调用
   finishMove() {
+    if (!state.moving || !Number.isInteger(state._moveFinal)) return
     const p = currentPlayer()
     p.position = state._moveFinal
     state.moving = false
@@ -252,17 +254,22 @@ export const store = {
   },
 
   resetGame() {
+    clearTimeout(state._noticeTimer)
     state.players = defaultPlayers()
     state.current = 0
     state.diceValue = 0
     state.rolling = false
     state.moving = false
+    state.movePath = []
+    state._moveFinal = null
+    state._moveEffects = null
     state.winner = null
     state.rerollPending = false
     state.effects = []
     state.completedTasks = {}
     state.phase = 'idle'
     state.notice = null
+    state._noticeTimer = null
     emit()
   },
 

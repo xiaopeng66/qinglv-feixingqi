@@ -33,12 +33,25 @@ export class GameView {
 
   destroy() {
     this.unsub()
-    clearTimeout(this.diceTimer)
-    clearInterval(this.diceFaceTimer)
-    clearTimeout(this.animTimer)
+    this.cancelGameAnimations()
     clearTimeout(this.modalCloseTimer)
     this.clearTaskCountdown()
     this.root.innerHTML = ''
+  }
+
+  // A reset can happen while dice or token timers are pending. Cancel them so a
+  // callback from the previous game cannot advance the freshly reset state.
+  cancelGameAnimations() {
+    clearTimeout(this.diceTimer)
+    clearInterval(this.diceFaceTimer)
+    clearTimeout(this.animTimer)
+    this.diceTimer = null
+    this.diceFaceTimer = null
+    this.animTimer = null
+    this.diceRolling = false
+    this.animating = false
+    this.animPos = null
+    this.diceEl?.classList.remove('rolling')
   }
 
   render() {
@@ -370,6 +383,7 @@ export class GameView {
       </div>
     `
     this.modalRoot.querySelector('[data-action="reset-yes"]').addEventListener('click', () => {
+      this.cancelGameAnimations()
       this.modalLocked = false
       this.store.resetGame()
     })
@@ -437,7 +451,10 @@ export class GameView {
       btn.addEventListener('click', () => this.confirmTaskEffect())
     })
     this.modalRoot.querySelector('[data-action="countdown-start"]')?.addEventListener('click', () => this.startTaskCountdown(eff.duration))
-    if (eff.duration > 0) this.updateTaskCountdown()
+    if (eff.duration > 0) {
+      this.modalRoot.querySelector('.modal-actions [data-action="confirm"]')?.setAttribute('disabled', '')
+      this.updateTaskCountdown()
+    }
   }
 
   startTaskCountdown(duration) {
