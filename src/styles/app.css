@@ -83,12 +83,11 @@ body {
   overflow: hidden;
   background: #180B16;
   color: #F8EBDD;
-  opacity: 0;
-  transition: opacity 220ms ease;
 }
-.launch-screen--visible { opacity: 1; }
-.launch-screen--leaving { opacity: 0; pointer-events: none; }
-.launch-screen__content { position: relative; z-index: 1; display: grid; justify-items: center; padding: 32px; text-align: center; }
+.launch-screen--leaving { pointer-events: none; }
+.launch-screen__content { position: relative; z-index: 1; display: grid; justify-items: center; padding: 32px; text-align: center; opacity: 0; transform: translateY(8px) scale(0.98); transition: opacity 220ms ease, transform 260ms ease; }
+.launch-screen--visible .launch-screen__content { opacity: 1; transform: translateY(0) scale(1); }
+.launch-screen--leaving .launch-screen__content { opacity: 0; transform: translateY(-8px) scale(0.98); }
 .launch-screen__content::before {
   position: absolute;
   z-index: -1;
@@ -143,7 +142,8 @@ body {
 .launch-screen__loading span { width: 6px; height: 6px; border-radius: 50%; background: #D89A82; animation: launch-dot 900ms ease-in-out infinite; }
 .launch-screen__loading span:nth-child(2) { animation-delay: 120ms; }
 .launch-screen__loading span:nth-child(3) { animation-delay: 240ms; }
-.launch-screen__spark { position: absolute; width: 9px; height: 9px; border: 1px solid rgba(243, 208, 180, 0.62); transform: rotate(45deg); animation: launch-spark 2.2s ease-in-out infinite; }
+.launch-screen__spark { position: absolute; width: 9px; height: 9px; border: 1px solid rgba(243, 208, 180, 0.62); transform: rotate(45deg); animation: launch-spark 2.2s ease-in-out infinite; transition: opacity 160ms ease; }
+.launch-screen--leaving .launch-screen__spark { opacity: 0; }
 .launch-screen__spark--one { top: 23%; left: 20%; }
 .launch-screen__spark--two { right: 19%; bottom: 25%; width: 13px; height: 13px; animation-delay: 480ms; }
 @keyframes launch-mark-in { from { opacity: 0; transform: translateY(14px) rotate(-14deg) scale(0.86); } to { opacity: 1; transform: translateY(0) rotate(-6deg) scale(1); } }
